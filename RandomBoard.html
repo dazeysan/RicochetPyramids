@@ -318,7 +318,7 @@ Your browser does not support the HTML5 canvas tag.</canvas>
     ResetBoard();
     
     function AddShape(shape, color, x, y) {
-      console.log("AddShape("+shape+","+color+","+x+","+y+")");
+      //console.log("AddShape("+shape+","+color+","+x+","+y+")");
       var c=document.getElementById("myCanvas");
       var ctx=c.getContext("2d");
       ctx.strokeStyle="#000000";
@@ -377,7 +377,7 @@ Your browser does not support the HTML5 canvas tag.</canvas>
     for (i=0; i<9; i++) {
       x=Math.floor(Math.random()*8);
       y=Math.floor(Math.random()*8);
-      console.log(x+","+y);
+      //console.log(x+","+y);
       if (board[x][y]==0) {
         board[x][y] = 1;
         AddShape("square", "black", x, y);
@@ -393,7 +393,7 @@ Your browser does not support the HTML5 canvas tag.</canvas>
     for (i=0; i<3; i++) {
       x=Math.floor(Math.random()*8);
       y=Math.floor(Math.random()*8);
-      console.log(x+","+y);
+      //console.log(x+","+y);
       if (board[x][y]==0) {
         board[x][y] = 10*(i+1);
         AddShape("pyramid", pyramidColors[i], x, y);
@@ -407,18 +407,18 @@ Your browser does not support the HTML5 canvas tag.</canvas>
   
   function NewTarget() {
     target=Math.floor(Math.random()*9);
-    console.log("target="+target);
+    //console.log("target="+target);
     AddShape("circle", "gold", towers[target][0], towers[target][1]);
   }
   
   function NewActivePyramid() {
     pyramid=Math.floor(Math.random()*3);
-    console.log("pyramid="+pyramid);
+    //console.log("pyramid="+pyramid);
     AddShape("active-pyramid", pyramid, pyramids[pyramid][0], pyramids[pyramid][1])
   }
   
   function NewGame() {
-    seed=Math.floor(Math.random()*100000);
+    seed=Math.floor(Math.random()*100000).toString();
     Math.seedrandom(seed);
     document.getElementById("seedbox").value=seed;
     NewTowers();
@@ -428,8 +428,9 @@ Your browser does not support the HTML5 canvas tag.</canvas>
   }
 
   function SeedGame() {
-    seed=document.getElementById("seedbox").value;
+    seed=document.getElementById("seedbox").value.toString();
     Math.seedrandom(seed);
+    document.getElementById("seedbox").value=seed;
     NewTowers();
     NewPyramids();
     NewTarget();
