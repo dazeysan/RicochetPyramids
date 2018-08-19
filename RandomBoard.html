@@ -268,6 +268,22 @@
 
 <canvas id="myCanvas" width="400" height="400" style="border:2px solid #d3d3d3;">
 Your browser does not support the HTML5 canvas tag.</canvas>
+
+<br/>
+<br/>
+
+<button type="button" onClick="Javascript:ResetBoard();DrawBoard();SetPyramid('none');">Clear Board</button>
+<button id="buttonErase" type="button" onClick="Javascript:editShape='erase';SetPyramid('none');document.getElementById('buttonErase').style.backgroundColor='darkgrey';">Erase Square</button>
+<br/>
+<br/>
+<button id="buttonSquare" type="button" onClick="Javascript:editShape='square';SetPyramid('none');document.getElementById('buttonSquare').style.backgroundColor='darkgrey';">Tower</button>
+<button id="buttonCircle" type="button" onClick="Javascript:editShape='circle';SetPyramid('none');document.getElementById('buttonCircle').style.backgroundColor='darkgrey';">Target</button>
+
+<button id="buttonPurple" type="button" onClick="Javascript:editShape='pyramid';SetPyramid('purple');">Purple</button>
+<button id="buttonGreen" type="button" onClick="Javascript:editShape='pyramid';SetPyramid('green');">Green</button>
+<button id="buttonOrange" type="button" onClick="Javascript:editShape='pyramid';SetPyramid('orange');">Orange</button>
+<button id="buttonActive" type="button" onClick="Javascript:SetActive();">Active</button>
+
 <script>
  
    var seed=0;
@@ -278,7 +294,7 @@ Your browser does not support the HTML5 canvas tag.</canvas>
     var ctx=c.getContext("2d");
     ctx.beginPath();
     ctx.fillStyle="#FFFFFF";
-    ctx.fillRect(0,0 ,400,400);
+    ctx.fillRect(0,0 ,401,401);
     ctx.strokeStyle="#000000";
     ctx.fillStyle="#BBDDFF";
     ctx.setLineDash([]);
@@ -305,12 +321,22 @@ Your browser does not support the HTML5 canvas tag.</canvas>
         var left = 0;
       }
     }
+    ctx.moveTo(0,400);
+    ctx.lineTo(400,400);
+    ctx.stroke();
+ 
+    ctx.moveTo(400,0);
+    ctx.lineTo(400,400);
+    ctx.stroke();
   }
   
   var board;
-  var pyramidColors=["#cc79a7", "#069f73", "#e79f27"];
+  var pyramidColors=["#cc79a7", "#069f73", "#e79f27"];  //Color blind friendly Purple, Green, Orange
   var towers=[ [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0] ];
   var pyramids=[ [0,0],[0,0],[0,0] ];
+  var editShape="";
+  var editPyramid="purple";
+  var editActive=false;
   
     function ResetBoard() {
       board = [ [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], ];
@@ -414,7 +440,7 @@ Your browser does not support the HTML5 canvas tag.</canvas>
   function NewActivePyramid() {
     pyramid=Math.floor(Math.random()*3);
     //console.log("pyramid="+pyramid);
-    AddShape("active-pyramid", pyramid, pyramids[pyramid][0], pyramids[pyramid][1])
+    AddShape("active-pyramid", pyramidColors[pyramid], pyramids[pyramid][0], pyramids[pyramid][1])
   }
   
   function NewGame() {
@@ -436,6 +462,86 @@ Your browser does not support the HTML5 canvas tag.</canvas>
     NewTarget();
     NewActivePyramid();
   }
+  
+  function EraseSquare(x, y) {
+    var c=document.getElementById("myCanvas");
+    var ctx=c.getContext("2d");
+    ctx.fillStyle="white";
+    ctx.strokeStyle="#000000";
+    ctx.setLineDash([]);
+    sx = x*50;
+    sy = y*50;
+    if((y%2 > 0 && x%2 == 0) || (y%2 == 0 && x%2 > 0)) {
+      ctx.fillStyle="#BBDDFF";
+    }
+    ctx.beginPath();
+    ctx.rect(sx+1,sy+1,48,48);
+    ctx.stroke();
+    ctx.fill();
+  }
+  
+  function SetPyramid(color) {
+    document.getElementById("buttonPurple").style.backgroundColor="";
+    document.getElementById("buttonGreen").style.backgroundColor="";
+    document.getElementById("buttonOrange").style.backgroundColor="";
+    document.getElementById("buttonSquare").style.backgroundColor="";
+    document.getElementById("buttonCircle").style.backgroundColor="";
+    document.getElementById("buttonErase").style.backgroundColor="";
+    if (color == "purple") {
+      editPyramid=pyramidColors[0];
+      document.getElementById("buttonPurple").style.backgroundColor="darkgrey";
+    }
+    if (color == "green") {
+      editPyramid=pyramidColors[1];
+      document.getElementById("buttonGreen").style.backgroundColor="darkgrey";
+    }
+    if (color == "orange") {
+      editPyramid=pyramidColors[2];
+      document.getElementById("buttonOrange").style.backgroundColor="darkgrey";
+    }
+  }
+  
+  function SetActive() {
+    if (editActive==true) {
+      editActive=false;
+      document.getElementById("buttonActive").style.backgroundColor="";
+    } else {
+      editActive=true;
+      document.getElementById("buttonActive").style.backgroundColor="darkgrey";
+    }
+  }
+  
+  var c = document.getElementById('myCanvas');
+  var canvLeft = c.offsetLeft;
+  var canvTop = c.offsetTop;
+  var context = c.getContext('2d');
+
+  c.addEventListener('click', function(event) {
+    var clickx = event.pageX - canvLeft;
+    var clicky = event.pageY - canvTop;
+    x=Math.ceil(clickx/50)-1;
+    y=Math.ceil(clicky/50)-1;
+    
+    console.log(clickx+","+clicky);
+    if (editShape=="erase"){
+      EraseSquare(x, y);
+    }
+    if (editShape=="square") {
+      AddShape("square", "black", x, y);
+    }
+    if (editShape=="circle") {
+      AddShape("circle", "gold", x, y);
+    }
+    if (editShape=="pyramid") {
+      AddShape("pyramid", editPyramid, x, y);
+      if (editActive == true) {
+        AddShape("active-pyramid", editPyramid, x, y);
+      }
+    }
+  }, false);
+  
+  
+  
   
   NewGame();
   
