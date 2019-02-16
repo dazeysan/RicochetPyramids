@@ -261,7 +261,7 @@
 <body>
 
 <button type="button" onClick="Javascript:SeedGame();">Seeded Game</button>
-<input type="text" id="seedbox"></input>
+<input type="text" id="seedbox" onkeypress="return enterKeySeed(event)"></input>
 <button type="button" onClick="Javascript:NewGame();">Random Game</button>
 <br/>
 <br/>
@@ -274,6 +274,7 @@ Your browser does not support the HTML5 canvas tag.</canvas>
 
 <button type="button" onClick="Javascript:ResetBoard();DrawBoard();SetPyramid('none');">Clear Board</button>
 <button id="buttonErase" type="button" onClick="Javascript:editShape='erase';SetPyramid('none');document.getElementById('buttonErase').style.backgroundColor='darkgrey';">Erase Square</button>
+ - <a id="download" download="image.png"><button type="button" onClick="download()">Download Image</button></a>
 <br/>
 <br/>
 <button id="buttonSquare" type="button" onClick="Javascript:editShape='square';SetPyramid('none');document.getElementById('buttonSquare').style.backgroundColor='darkgrey';">Tower</button>
@@ -283,7 +284,12 @@ Your browser does not support the HTML5 canvas tag.</canvas>
 <button id="buttonGreen" type="button" onClick="Javascript:editShape='pyramid';SetPyramid('green');">Green</button>
 <button id="buttonOrange" type="button" onClick="Javascript:editShape='pyramid';SetPyramid('orange');">Orange</button>
 <button id="buttonActive" type="button" onClick="Javascript:SetActive();">Active</button>
-
+<br/>
+<br/>
+<!--
+<div id="answerBox" style="width: 100px; height: 50px; background-color: red;" onClick="Javascript:toggleAnswerBox();"></div>
+<textarea id="answerText" rows="4" cols="50"></textarea>
+-->
 <script>
  
    var seed=0;
@@ -337,6 +343,7 @@ Your browser does not support the HTML5 canvas tag.</canvas>
   var editShape="";
   var editPyramid="purple";
   var editActive=false;
+  var bggAnswerBox=false;
   
     function ResetBoard() {
       board = [ [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], ];
@@ -540,10 +547,91 @@ Your browser does not support the HTML5 canvas tag.</canvas>
     }
   }, false);
   
+  document.addEventListener('keydown', (event) => {
+    const keyName = event.key;
+    var textbox=document.getElementById("answerText");
+    if (textbox.selectionStart == '0'){
+      newline="";
+    } else {
+      newline="\n";
+    }
+    if (bggAnswerBox == true) {
+      //alert('keydown event\n\n' + 'key: ' + keyName);
+      if (keyName =="ArrowUp") {
+        insertAtCursor(textbox,":arrowN:");
+      }
+      if (keyName =="ArrowDown") {
+        insertAtCursor(textbox,":arrowS:");
+      }
+      if (keyName =="ArrowLeft") {
+        insertAtCursor(textbox,":arrowW:");
+      }
+      if (keyName =="ArrowRight") {
+        insertAtCursor(textbox,":arrowE:");
+      }
+      if (keyName =="o") {
+        insertAtCursor(textbox,newline+"Orange: ");
+      }
+      if (keyName =="p") {
+        insertAtCursor(textbox,newline+"Pink: ");
+      }
+      if (keyName =="g") {
+        insertAtCursor(textbox,newline+"Green: ");
+      }
+    }
+  });
   
+  function toggleAnswerBox() {
+    if (bggAnswerBox == false) {
+      bggAnswerBox=true;
+      document.getElementById("answerBox").style.backgroundColor="green";
+    } else {
+      bggAnswerBox=false;
+      document.getElementById("answerBox").style.backgroundColor="red";
+    }
+  }
   
+// http://stackoverflow.com/questions/11076975/insert-text-into-textarea-at-cursor-position-javascript
+function insertAtCursor(myField, myValue) {
+    //IE support
+    if (document.selection) {
+        myField.focus();
+        sel = document.selection.createRange();
+        sel.text = myValue;
+    }
+    //MOZILLA and others
+    else if (myField.selectionStart || myField.selectionStart == '0') {
+        var startPos = myField.selectionStart;
+        var endPos = myField.selectionEnd;
+        myField.value = myField.value.substring(0, startPos)
+            + myValue
+            + myField.value.substring(endPos, myField.value.length);
+        myField.selectionStart = startPos + myValue.length;
+        myField.selectionEnd = startPos + myValue.length;
+        myField.blur();
+    } else {
+        myField.value += myValue;
+        myField.blur();
+    }
+}
   
-  NewGame();
+function download(){
+  var download = document.getElementById("download");
+  var image = document.getElementById("myCanvas").toDataURL("image/png")
+    .replace("image/png", "image/octet-stream");
+  download.setAttribute("href", image);
+  download.setAttribute("download",seed+".png");
+}
+
+function enterKeySeed(e) {
+    //From https://stackoverflow.com/questions/905222/enter-key-press-event-in-javascript
+    if (e.keyCode == 13) {
+        SeedGame();
+        return false;
+    }
+}
+
+NewGame();
   
 </script>
  
